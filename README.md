@@ -40,8 +40,8 @@ S3Uploader 是一个面向后端为 `MINIO` 服务 *S3* 接口提供文件 上�
 	export S3UPLOADER_USERNAME=YOUR_API_KEY
 	export S3UPLOADER_PASSWORD=YOUR_API_SECRET
 	export S3UPLOADER_ENDPOINT=YOUR_S3.DOMAIN.COM
-	export S3UPLOADER_USESSL=false;
-	export S3UPLOADER_LOGFILE=/Users/harryzhu/logs/s3uploader.log;
+	export S3UPLOADER_USESSL=false
+	export S3UPLOADER_LOGFILE=/Users/harryzhu/logs/s3uploader.log
 ```
 
 * 多环境支持，例如	--prefix=ALPHA，那么ALPHA环境的前缀就是：`ALPHA_S3UPLOADER_`
@@ -50,8 +50,8 @@ S3Uploader 是一个面向后端为 `MINIO` 服务 *S3* 接口提供文件 上�
 	export ALPHA_S3UPLOADER_USERNAME=YOUR_API_KEY
 	export ALPHA_S3UPLOADER_PASSWORD=YOUR_API_SECRET
 	export ALPHA_S3UPLOADER_ENDPOINT=YOUR_ALPHA_S3.DOMAIN.COM
-	export ALPHA_S3UPLOADER_USESSL=false;
-	export ALPHA_S3UPLOADER_LOGFILE=/Users/harryzhu/logs/s3uploader_alpha.log;
+	export ALPHA_S3UPLOADER_USESSL=false
+	export ALPHA_S3UPLOADER_LOGFILE=/Users/harryzhu/logs/s3uploader_alpha.log
 ```
 
 * `fput`上传本地文件到S3:  
