@@ -214,6 +214,7 @@ func SaveFile(fp string, cnt []byte) error {
 
 func MD5File(fp string) (s string) {
 	file, err := os.Open(fp)
+	defer file.Close()
 	if err != nil {
 		logger.Error("MD5File", zap.Error(err))
 		return ""
