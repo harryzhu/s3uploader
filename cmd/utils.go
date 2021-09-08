@@ -1,9 +1,12 @@
 package cmd
 
 import (
+	"crypto/md5"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"os"
 	"strings"
@@ -84,7 +87,7 @@ func SetLogger() {
 	if Debug {
 		cfgProduction.Level = zap.NewAtomicLevelAt(zapcore.DebugLevel)
 	} else {
-		cfgProduction.Level = zap.NewAtomicLevelAt(zapcore.WarnLevel)
+		cfgProduction.Level = zap.NewAtomicLevelAt(zapcore.InfoLevel)
 	}
 
 	if LogFile != "" {
@@ -111,6 +114,7 @@ func FPut() {
 		"runat": Hostname,
 		"file":  FilePath,
 		"mime":  Mime,
+		"md5":   MD5File(FilePath),
 	}
 
 	opts := minio.PutObjectOptions{}
@@ -132,7 +136,8 @@ func FPut() {
 			zap.String("Bucket", BucketName),
 			zap.String("Object", ObjectName),
 			zap.String("File", FilePath),
-			zap.Int64("File", info.Size),
+			zap.Int64("FileSize", info.Size),
+			zap.String("FileETag", info.ETag),
 		)
 	}
 }
@@ -205,4 +210,16 @@ func SaveFile(fp string, cnt []byte) error {
 	}
 
 	return nil
+}
+
+func MD5File(fp string) (s string) {
+	file, err := os.Open(fp)
+	if err != nil {
+		logger.Error("MD5File", zap.Error(err))
+		return ""
+	}
+	hash := md5.New()
+	io.Copy(hash, file)
+	s = hex.EncodeToString(hash.Sum(nil))
+	return s
 }
