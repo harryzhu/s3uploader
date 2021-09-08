@@ -25,6 +25,7 @@ var fputCmd = &cobra.Command{
 
 func init() {
 	fputCmd.Flags().StringVar(&Mime, "mime", "application/octet-stream", "content-type of the object")
+
 	rootCmd.MarkPersistentFlagRequired("file")
 	rootCmd.AddCommand(fputCmd)
 }
