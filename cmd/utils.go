@@ -9,12 +9,14 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 	"strings"
 	"time"
 
+	"github.com/cheggaaa/pb"
 	minio "github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
-
+	"github.com/minio/minio-go/v7/pkg/tags"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 
@@ -81,7 +83,11 @@ func GetS3Client() *minio.Client {
 
 func SetLogger() {
 	var err error
+	ec := zap.NewProductionEncoderConfig()
+	ec.EncodeTime = zapcore.TimeEncoderOfLayout("2006-01-02 15:04:05")
+
 	cfgProduction := zap.NewProductionConfig()
+	cfgProduction.EncoderConfig = ec
 	cfgProduction.DisableStacktrace = true
 	cfgProduction.DisableCaller = true
 	if Debug {
@@ -110,10 +116,18 @@ func SetLogger() {
 }
 
 func FPut() {
+	fileInfo, err := os.Stat(FilePath)
+	if err != nil {
+		logger.Fatal("FPut", zap.Error(err))
+	}
+
+	progress := pb.New64(fileInfo.Size())
+	progress.Units = pb.U_BYTES
+	progress.Start()
+
 	user_tags := map[string]string{
 		"runat": Hostname,
-		"file":  FilePath,
-		"mime":  Mime,
+		"file":  filepath.Base(FilePath),
 		"md5":   MD5File(FilePath),
 	}
 
@@ -121,6 +135,7 @@ func FPut() {
 
 	opts.ContentType = Mime
 	opts.UserTags = user_tags
+	opts.Progress = progress
 
 	info, err := S3Client.FPutObject(Ctx, BucketName, ObjectName, FilePath, opts)
 
@@ -223,4 +238,58 @@ func MD5File(fp string) (s string) {
 	io.Copy(hash, file)
 	s = hex.EncodeToString(hash.Sum(nil))
 	return s
+}
+
+func TagObject() error {
+	KV_new_old := MergeTags()
+	logger.Info("TagObject", zap.String("Tags merged: ", KV_new_old))
+	tagMap := make(map[string]string, 32)
+	tagTokens := strings.Split(KV_new_old, ",")
+
+	for _, tok := range tagTokens {
+		if tok == "" {
+			break
+		}
+		kv := strings.SplitN(tok, ":", 2)
+		if len(kv) != 2 {
+			continue
+		}
+		if kv[0] == "" || kv[1] == "" {
+			continue
+		}
+
+		tagMap[kv[0]] = kv[1]
+	}
+
+	Tags, err := tags.MapToObjectTags(tagMap)
+	if err != nil {
+		logger.Error("ERROR TagObject", zap.Error(err))
+		return err
+	} else {
+		logger.Info("TagObject", zap.String("Tags", fmt.Sprintf("%s", Tags)))
+	}
+
+	err = S3Client.PutObjectTagging(Ctx, BucketName, ObjectName, Tags, minio.PutObjectTaggingOptions{})
+	if err != nil {
+		logger.Error("ERROR TagObject", zap.Error(err))
+		return err
+	} else {
+		logger.Info("OK TagObject")
+	}
+	return nil
+}
+
+func MergeTags() (kvs string) {
+	Tags, err := S3Client.GetObjectTagging(Ctx, BucketName, ObjectName, minio.GetObjectTaggingOptions{})
+	curTags := ""
+	if err != nil {
+		logger.Error("ERROR GetTags", zap.Error(err))
+	} else {
+		curTags = fmt.Sprintf("%s", Tags)
+	}
+
+	curTags = strings.ReplaceAll(curTags, "=", ":")
+	curTags = strings.ReplaceAll(curTags, "&", ",")
+	kvs = strings.Join([]string{curTags, KV}, ",")
+	return kvs
 }

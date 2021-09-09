@@ -25,6 +25,7 @@ var (
 	ObjectName string
 	FilePath   string
 	Mime       string
+	KV         string
 	LogFile    string
 	Debug      bool
 )
