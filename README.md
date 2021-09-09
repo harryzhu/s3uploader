@@ -3,7 +3,7 @@
 ```
 git clone https://github.com/harryzhu/s3uploader
 cd s3uploader
-go build
+go build --ldflags "-w -s"
 ```
 
 S3Uploader 是一个面向后端为 `MINIO` 服务 *S3* 接口提供文件 上传（fput）、下载（fget）、状态查看（stat）的小工具，不提供删除和批量删除功能 
