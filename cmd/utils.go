@@ -244,7 +244,7 @@ func MD5File(fp string) (s string) {
 func TagObject() error {
 	KV_new_old := MergeTags()
 	logger.Info("TagObject", zap.String("Tags merged: ", KV_new_old))
-	tagMap := make(map[string]string, 32)
+	tagMap := make(map[string]string, 64)
 	tagTokens := strings.Split(KV_new_old, ",")
 
 	for _, tok := range tagTokens {
