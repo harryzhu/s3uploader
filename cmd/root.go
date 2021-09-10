@@ -39,26 +39,31 @@ var (
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
-	Use:   "s3uploader fput|fget",
+	Use:   "s3uploader fput|fget|stat|tag",
 	Short: "s3uploader",
 	Long: `Usage:
 1)set env variables first: 
 	export S3UPLOADER_USERNAME=YOUR_API_KEY
 	export S3UPLOADER_PASSWORD=YOUR_API_SECRET
 	export S3UPLOADER_ENDPOINT=MINIO_S3_SERVICE_DOMAIN_NAME
-	export S3UPLOADER_USESSL=false;
+	export S3UPLOADER_USESSL=false or true(depends on your server side);
 	export S3UPLOADER_LOGFILE=/Users/harryzhu/logs/s3uploader.log;
 	
   or if you set parameter --prefix=ALPHA, env variables should be like:
 	export ALPHA_S3UPLOADER_USERNAME=YOUR_API_KEY
 	export ALPHA_S3UPLOADER_PASSWORD=YOUR_API_SECRET
 	export ALPHA_S3UPLOADER_ENDPOINT=MINIO_S3_SERVICE_DOMAIN_NAME
-	export ALPHA_S3UPLOADER_USESSL=false;
+	export ALPHA_S3UPLOADER_USESSL=false or true(depends on your server side);
 	export ALPHA_S3UPLOADER_LOGFILE=/Users/harryzhu/logs/s3uploader_alpha.log;
 	
-2)upload file: ./s3uploader fput --bucket=test --object=s3/object/path_or_name.png --file=local/path/of/your/file.png --mime="image/png"
+2)upload file: ./s3uploader fput --bucket=test --object=s3/object/path_or_name.png --file=local/path/of/your/file.png --mime="image/png" --debug
 
 3)download file: ./s3uploader fget --bucket=test --object=s3/object/path_or_name.png --file=local/path/of/your/file.png
+
+4)tag object: ./s3uploader tag --bucket=test --object=s3/object/path_or_name.png --kv="project:BeChangedByTheWorld,owner:harryzhu,year:2020"
+
+5)stat object: ./s3uploader stat --bucket=test --object=s3/object/path_or_name.png
+  stat object: ./s3uploader stat --bucket=test --object=s3/object/path_or_name.png --file=local/path/of/exporting/result/for/save.json
 	`,
 
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
@@ -66,6 +71,7 @@ var rootCmd = &cobra.Command{
 		SetLogger()
 		Ctx = context.Background()
 		S3Client = GetS3Client()
+
 	},
 
 	Run: func(cmd *cobra.Command, args []string) {

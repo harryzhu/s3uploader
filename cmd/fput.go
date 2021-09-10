@@ -9,7 +9,7 @@ var fputCmd = &cobra.Command{
 	Short: "upload local file into s3 objects",
 	Long:  `read local file(--file=local-file-path), then put it into s3's bucket(--bucket=s3-bucket-name) with name(--object=object-name-in-s3)`,
 	PreRun: func(cmd *cobra.Command, args []string) {
-
+		MimeMerge()
 		ShowVars()
 
 	},
@@ -24,7 +24,7 @@ var fputCmd = &cobra.Command{
 }
 
 func init() {
-	fputCmd.Flags().StringVar(&Mime, "mime", "application/octet-stream", "content-type of the object")
+	fputCmd.Flags().StringVar(&Mime, "mime", "", "content-type of the object")
 
 	rootCmd.MarkPersistentFlagRequired("file")
 	rootCmd.AddCommand(fputCmd)

@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"mime"
 	"os"
 	"path/filepath"
 	"strings"
@@ -257,7 +258,8 @@ func TagObject() error {
 		if kv[0] == "" || kv[1] == "" {
 			continue
 		}
-
+		kv[0] = strings.ToLower(kv[0])
+		kv[1] = strings.ToLower(kv[1])
 		tagMap[kv[0]] = kv[1]
 	}
 
@@ -292,4 +294,20 @@ func MergeTags() (kvs string) {
 	curTags = strings.ReplaceAll(curTags, "&", ",")
 	kvs = strings.Join([]string{curTags, KV}, ",")
 	return kvs
+}
+
+func MimeMerge() error {
+	if Mime != "" {
+		return nil
+	}
+
+	mt := mime.TypeByExtension(filepath.Ext(FilePath))
+	logger.Info("MimeMerge", zap.String("mime guess", mt))
+	if mt != "" {
+		Mime = mt
+		return nil
+	}
+
+	Mime = "application/octet-stream"
+	return nil
 }

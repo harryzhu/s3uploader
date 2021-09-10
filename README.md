@@ -64,7 +64,10 @@ S3Uploader 是一个面向后端为 `MINIO` 服务 *S3* 接口提供文件 上�
  `./s3uploader stat --bucket=test --object=s3/object/path_or_name.png`
 
 * `stat`命令默认打印结果在终端，如果想要保存查询到的结果到文件，用 `--file=`指定即可，文件后缀名必须为`.json`，如果不是，会自动添加`.json`  
- `./s3uploader stat --bucket=test --object=s3/object/path_or_name.png --file=local/path/of/your/file.json`
+ `./s3uploader stat --bucket=test --object=s3/object/path_or_name.png --file=local/path/for/saving/result.json`
+
+* `tag`给S3中的对象添加标签，`--kv=`指定，格式k:v为一对，使用`,`分割多个不同的标签对,键、值都将被转换为小写:  
+ `./s3uploader stat --bucket=test --object=s3/object/path_or_name.png --kv="project:BeChangedByTheWorld,owner:harryzhu,year:2020"`
 
 * 使用`ALPHA`环境:  
  `./s3uploader fput --prefix=ALPHA --bucket=test --object=s3/object/path_or_name.png --file=local/path/of/your/file.png --mime="image/png"`

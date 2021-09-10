@@ -15,7 +15,6 @@ var tagCmd = &cobra.Command{
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		logger.Info("Start Tagging...")
-		//MergeTags()
 		TagObject()
 	},
 
