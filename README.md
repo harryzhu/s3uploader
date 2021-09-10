@@ -30,7 +30,8 @@ S3Uploader 是一个面向后端为 `MINIO` 服务 *S3* 接口提供文件 上�
 
 ### `fget`： 下载S3中的对象文件保存到本地
 
-### `tag`：  给S3中的对象打标签，键值都将被转换为小写，键值对格式 `Key:Value` 用`:`分隔，多个键值对用`,`分隔
+### `tag`：  给S3中的对象打标签，键值都将被转换为小写，键值对格式 `key:value` 用`:`分隔，多个键值对用`,`分隔
+`--kv="project:BeChangedByTheWorld,owner:harryzhu,year:2020"` ：	标签将分开显示为 `project:bechangedbytheworld`,`owner:harryzhu`,`year:2020`  
 
 ### `stat`： 不下载文件仅查看S3对象的元数据，该命令下，如果 `--file=` 指定了路径，则会把默认显示在console中的信息保存到指定的文件中
 
