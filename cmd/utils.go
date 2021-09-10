@@ -117,6 +117,7 @@ func SetLogger() {
 }
 
 func FPut() {
+
 	fileInfo, err := os.Stat(FilePath)
 	if err != nil {
 		logger.Fatal("FPut", zap.Error(err))
@@ -156,6 +157,7 @@ func FPut() {
 			zap.String("FileETag", info.ETag),
 		)
 	}
+
 }
 
 func FGet() {
