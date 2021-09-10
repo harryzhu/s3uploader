@@ -296,7 +296,7 @@ func MergeTags() (kvs string) {
 	return kvs
 }
 
-func MimeMerge() error {
+func MergeMIME() error {
 	if Mime != "" {
 		return nil
 	}
