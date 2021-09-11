@@ -9,6 +9,7 @@ import (
 	"io"
 	"io/ioutil"
 	"mime"
+	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
@@ -245,13 +246,14 @@ func MD5File(fp string) (s string) {
 
 func TagObject() error {
 	KV_new_old := MergeTags()
-	logger.Info("TagObject", zap.String("Tags merged: ", KV_new_old))
+	logger.Info("TagObject(maximum:64)", zap.String("Tags merged: ", KV_new_old))
 	tagMap := make(map[string]string, 64)
 	tagTokens := strings.Split(KV_new_old, ",")
 
+	var err error
 	for _, tok := range tagTokens {
 		if tok == "" {
-			break
+			continue
 		}
 		kv := strings.SplitN(tok, ":", 2)
 		if len(kv) != 2 {
@@ -260,17 +262,32 @@ func TagObject() error {
 		if kv[0] == "" || kv[1] == "" {
 			continue
 		}
-		kv[0] = strings.ToLower(kv[0])
-		kv[1] = strings.ToLower(kv[1])
+
+		kv[0], err = url.QueryUnescape(kv[0])
+		if err != nil {
+			continue
+		}
+		kv[1], err = url.QueryUnescape(kv[1])
+		if err != nil {
+			continue
+		}
+		if len(kv[0]) > 128 || len(kv[1]) > 128 {
+			logger.Info("TagObject SKIP: key/value is too long(maximum:128 bytes)", zap.Int("key", len(kv[0])), zap.Int("value", len(kv[1])))
+			continue
+		}
+
 		tagMap[kv[0]] = kv[1]
 	}
+
+	logger.Info("TagObject", zap.Int("tags count", len(tagMap)))
 
 	Tags, err := tags.MapToObjectTags(tagMap)
 	if err != nil {
 		logger.Error("ERROR TagObject", zap.Error(err))
 		return err
 	} else {
-		logger.Info("TagObject", zap.String("Tags", fmt.Sprintf("%s", Tags)))
+		tagsLatest, _ := url.QueryUnescape(fmt.Sprintf("%s", Tags))
+		logger.Info("TagObject Latest", zap.String("Tags", tagsLatest))
 	}
 
 	err = S3Client.PutObjectTagging(Ctx, BucketName, ObjectName, Tags, minio.PutObjectTaggingOptions{})
@@ -291,11 +308,12 @@ func MergeTags() (kvs string) {
 	} else {
 		curTags = fmt.Sprintf("%s", Tags)
 	}
-
+	curTags, _ = url.QueryUnescape(curTags)
 	curTags = strings.ReplaceAll(curTags, "=", ":")
 	curTags = strings.ReplaceAll(curTags, "&", ",")
+	KV = strings.Trim(KV, ",")
 	kvs = strings.Join([]string{curTags, KV}, ",")
-	return kvs
+	return strings.Trim(kvs, ",")
 }
 
 func MergeMIME() error {
