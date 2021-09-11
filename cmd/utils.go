@@ -271,8 +271,8 @@ func TagObject() error {
 		if err != nil {
 			continue
 		}
-		if len(kv[0]) > 128 || len(kv[1]) > 128 {
-			logger.Info("TagObject SKIP: key/value is too long(maximum:128 bytes)", zap.Int("key", len(kv[0])), zap.Int("value", len(kv[1])))
+		if len(kv[0]) > 256 || len(kv[1]) > 256 {
+			logger.Info("TagObject SKIP: key/value is too long(maximum:256 bytes)", zap.Int("key", len(kv[0])), zap.Int("value", len(kv[1])))
 			continue
 		}
 
