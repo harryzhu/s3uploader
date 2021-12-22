@@ -44,6 +44,7 @@ func MergeEnvFlags() {
 	Password = viper.GetString("Password")
 	LogFile = viper.GetString("LogFile")
 	UseSSL = viper.GetBool("UseSSL")
+	MaxSize_MB = viper.GetInt64("MaxSize_MB")
 
 	Username = strings.TrimSpace(Username)
 	Password = strings.TrimSpace(Password)
@@ -60,6 +61,11 @@ func MergeEnvFlags() {
 		os.Exit(1)
 	}
 
+	if MaxSize_MB == 0 {
+		MaxSize_MB = 4096
+	}
+
+	fmt.Println("File Max Size Limit: ", MaxSize_MB, " MB, you can set env S3UPLOADER_MAXSIZE_MB for change this limit.")
 }
 
 func GetS3Client() *minio.Client {
@@ -122,6 +128,10 @@ func FPut() {
 	fileInfo, err := os.Stat(FilePath)
 	if err != nil {
 		logger.Fatal("FPut", zap.Error(err))
+	}
+
+	if fileInfo.Size() > MaxSize_MB*1024*1024 {
+		logger.Fatal("FPut File is too large.", zap.Int64("maxsize_mb", MaxSize_MB))
 	}
 
 	progress := pb.New64(fileInfo.Size())

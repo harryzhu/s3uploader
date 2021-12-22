@@ -23,6 +23,7 @@ var (
 	UseSSL     bool
 	BucketName string
 	ObjectName string
+	MaxSize_MB int64
 	FilePath   string
 	Mime       string
 	KV         string
@@ -127,6 +128,7 @@ func initConfig() {
 	viper.BindEnv("ENDPOINT")
 	viper.BindEnv("USESSL")
 	viper.BindEnv("LOGFILE")
+	viper.BindEnv("MAXSIZE_MB")
 
 	viper.AutomaticEnv() // read in environment variables that match
 
