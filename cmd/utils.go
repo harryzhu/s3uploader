@@ -65,7 +65,7 @@ func MergeEnvFlags() {
 		MaxSize_MB = 4096
 	}
 
-	fmt.Println("File Max Size Limit: ", MaxSize_MB, " MB, you can set env S3UPLOADER_MAXSIZE_MB for change this limit.")
+	fmt.Println("File Max Size Limit: ", MaxSize_MB, " MB, you can set env S3UPLOADER_MAXSIZE_MB to change this limit.")
 }
 
 func GetS3Client() *minio.Client {
